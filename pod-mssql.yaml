@@ -1,0 +1,14 @@
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: pod-mssql
+  labels:
+    app: mssql
+spec:
+  containers:
+    - name: doug-mssql
+      image: dougvs/doug-mssql:v1
+      ports:
+        - containerPort: 1433
+...

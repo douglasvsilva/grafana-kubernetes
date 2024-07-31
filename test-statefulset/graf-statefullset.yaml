@@ -1,0 +1,32 @@
+
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: grafana-state # nome do statefullset
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: grafana-prometheus
+  template:
+    metadata:
+      name: pod-grafana # nome do pod dentro do statefulset
+      labels:
+        app: grafana-prometheus
+    spec:  # a partir daqui são as informações do conteiner dentro do pod
+      containers:
+        - name: grafana
+          image: grafana/grafana:latest
+          ports:
+            - containerPort: 3000
+          volumeMounts:
+            - name: grafana-data-pvc
+              mountPath: /etc/grafana
+      volumes:
+        - name: grafana-data-pvc
+          persistentVolumeClaim:
+            claimName: grafana-data-pvc
+  serviceName: svc-grafana-prometheus
+
+# OBS: não é preciso criar os pv para a sessao e para o imagens, pois ao criar os pvc o kubernetes já tem um storageclass que cria os pvs, 
+#      detalhe se o for o k3s é local-path, se for o do minikube é o hostpath

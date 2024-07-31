@@ -1,0 +1,10 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: mssql-config
+data:
+  database: DemoDB
+  username: user_demo
+  password: password@123
+...

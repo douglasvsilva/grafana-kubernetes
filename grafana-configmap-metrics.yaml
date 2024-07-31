@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: grafana-configmap
+data:
+  grafana.ini: |
+    [metrics]
+    enabled = true
+    basic_auth_username = "admim"
+    basic_auth_password = "password"

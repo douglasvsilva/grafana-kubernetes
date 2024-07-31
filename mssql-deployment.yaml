@@ -1,0 +1,20 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mssql-deployment
+spec:
+  template:
+    metadata:
+      name: pod-mssql
+      labels:
+        app: mssql
+    spec:
+      containers:
+        - name: doug-mssql
+          image: dougvs/doug-mssql:v1
+          ports:
+            - containerPort: 1433
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mssql

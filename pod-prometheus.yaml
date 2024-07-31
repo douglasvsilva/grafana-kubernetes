@@ -1,0 +1,20 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: prometheus
+  labels:
+    app: prometheus
+spec:
+  containers:
+    - name: prometheus
+      image: prom/prometheus
+      ports:
+        - containerPort: 9090
+      volumeMounts:
+        - mountPath: /prometheus-data/
+          name: volume-promo
+  volumes:
+    - name: volume-promo
+      hostPath:
+        path: /vagrant/prometheus
+        type: Directory

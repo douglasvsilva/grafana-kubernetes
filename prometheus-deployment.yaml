@@ -1,0 +1,31 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: promo-deployment
+spec:
+  template:
+    metadata:
+      name: pod-prometheus
+      labels:
+        app: prometheus
+    spec:
+      containers:
+        - name: prometheus
+          image: prom/prometheus
+          ports:
+            - containerPort: 9090
+          volumeMounts:
+            - name: promo-volume
+              mountPath: /etc/prometheus/
+      volumes:
+        - name: promo-volume
+          hostPath:
+            path: /home/douglas/prometheus/
+            type: DirectoryOrCreate
+  replicas: 1
+  selector:
+    matchLabels:
+      app: prometheus
+
+...

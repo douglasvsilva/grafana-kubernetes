@@ -1,0 +1,23 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: grafana-deployment
+spec:
+  template:
+    metadata:
+      name: pod-grafana
+      labels:
+        app: grafana
+    spec:
+      containers:
+        - name: doug-grafana
+          image: dougvs/doug-grafana:v1
+          ports:
+            - containerPort: 9090
+          envFrom:
+            - configMapRef:
+                name: mssql-config
+  replicas: 1
+  selector:
+    matchLabels:
+      app: grafana

@@ -1,0 +1,165 @@
+kubectl get nodes -o wide
+
+Comando para acessar um banco de dados mssql dentro de um container que está dentro de um pod
+  /opt/mssql-tools/bin/sqlcmd -S localhost -U user_demo -P 'Password@123'
+
+Comando kubectl para entrar em um container dentro de um pod
+  kubectl exec -it pod-mssql -c doug-mssql -- bash
+
+
+
+Descrição para implentar storage class localmente
+
+Você tem razão. O principal benefício do uso de Storage Classes é a criação dinâmica de Persistent Volumes, o que funciona bem para provedores de nuvem, mas não é tão simples de implementar localmente.Para ter os mesmos benefícios de criação dinâmica de Persistent Volumes de forma local, você pode utilizar um provisionador local, como o local-path-provisioner. Esse provisionador permite criar PVs dinamicamente usando armazenamento local no nó do Kubernetes.Aqui está um exemplo de como configurar um Storage Class usando o local-path-provisioner:
+                 
+                    
+                        yaml
+                        
+                            Copiar código
+                        
+                    
+                    
+                        apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: local-storage
+provisioner: rancher.io/local-path
+volumeBindingMode: WaitForFirstConsumer
+reclaimPolicy: Delete
+                    
+                
+        Nesse exemplo:
+O provisioner é definido como rancher.io/local-path, que é o provisionador local fornecido pela Rancher.
+O volumeBindingMode é definido como WaitForFirstConsumer, assim como no exemplo anterior, isso significa que o PV será criado quando um Pod fizer a reivindicação.
+O reclaimPolicy é definido como Delete, o que significa que o volume será excluído quando o PVC for excluído.
+
+Após criar esse Storage Class, você pode utilizar ele da mesma forma que usaria um Storage Class de um provedor de nuvem, criando um PVC e um Pod que faz referência a esse PVC.Então, sim, é possível ter os benefícios de criação dinâmica de Persistent Volumes de forma local, utilizando um provisionador local como o local-path-provisioner. Isso te dá a flexibilidade de usar armazenamento local no seu cluster Kubernetes.
+
+
+Ótima pergunta! Para implementar o Storage Class local usando o Minikube, você pode seguir estes passos:
+Instale o provisionador local-path-provisioner no seu cluster Minikube:
+
+
+                 
+                    
+                        lua
+                        
+                            Copiar código
+                        
+                    
+                    
+                        kubectl apply -f https://raw.githubusercontent.com/rancher/local-path-provisioner/master/deploy/local-path-storage.yaml
+                    
+                
+        Isso irá instalar o provisionador local no seu cluster Minikube.
+Crie o Storage Class local:
+
+
+                 
+                    
+                        yaml
+                        
+                            Copiar código
+                        
+                    
+                    
+                        apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: local-storage
+provisioner: rancher.io/local-path
+volumeBindingMode: WaitForFirstConsumer
+reclaimPolicy: Delete
+                    
+                
+        Salve esse conteúdo em um arquivo (por exemplo, local-storage-class.yaml) e aplique-o no seu cluster:
+                 
+                    
+                        cpp
+                        
+                            Copiar código
+                        
+                    
+                    
+                        kubectl apply -f local-storage-class.yaml
+                    
+                
+        Agora você tem um Storage Class local chamado local-storage disponível no seu cluster Minikube.
+Crie um Persistent Volume Claim (PVC) usando esse Storage Class:
+
+
+                 
+                    
+                        yaml
+                        
+                            Copiar código
+                        
+                    
+                    
+                        apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: local-pvc
+spec:
+  accessModes:
+  - ReadWriteOnce
+  resources:
+    requests:
+      storage: 5Gi
+  storageClassName: local-storage
+                    
+                
+        Salve esse conteúdo em um arquivo (por exemplo, local-pvc.yaml) e aplique-o no seu cluster:
+                 
+                    
+                        lua
+                        
+                            Copiar código
+                        
+                    
+                    
+                        kubectl apply -f local-pvc.yaml
+                    
+                
+        Isso irá criar um PVC de 5 GB usando o Storage Class local-storage.
+Use o PVC em um Pod:
+
+
+                 
+                    
+                        yaml
+                        
+                            Copiar código
+                        
+                    
+                    
+                        apiVersion: v1
+kind: Pod
+metadata:
+  name: local-pod
+spec:
+  containers:
+  - name: local-pod
+    image: nginx
+    volumeMounts:
+    - name: local-storage
+      mountPath: /data
+  volumes:
+  - name: local-storage
+    persistentVolumeClaim:
+      claimName: local-pvc
+                    
+                
+        Salve esse conteúdo em um arquivo (por exemplo, local-pod.yaml) e aplique-o no seu cluster:
+                 
+                    
+                        lua
+                        
+                            Copiar código
+                        
+                    
+                    
+                        kubectl apply -f local-pod.yaml
+                    
+                
+        Agora você tem um Pod que está usando o armazenamento local provisionado dinamicamente pelo local-path-provisioner.Esse é um exemplo básico de como implementar o Storage Class local no Minikube. Você pode ajustar os parâmetros conforme necessário, como o tamanho do volume, o modo de acesso, etc.
